@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SourceFileCollection xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Profile>Reach</Profile>
+  <Platform>Windows</Platform>
+  <Config />
+  <SourceFiles>
+    <File>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/cursor.png</File>
+    <File>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/Audio/SoundFX/NFF-zing.wav</File>
+    <File>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/dev-logo-1.png</File>
+    <File>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/dev-logo-2.png</File>
+    <File>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/Audio/SoundFX/dev-theme.wav</File>
+  </SourceFiles>
+</SourceFileCollection>
