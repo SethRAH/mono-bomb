@@ -9,5 +9,7 @@
     <File>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/dev-logo-1.png</File>
     <File>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/dev-logo-2.png</File>
     <File>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/Audio/SoundFX/dev-theme.wav</File>
+    <File>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/Skull_Bomb.png</File>
+    <File>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/Unclicked_Tile.png</File>
   </SourceFiles>
 </SourceFileCollection>

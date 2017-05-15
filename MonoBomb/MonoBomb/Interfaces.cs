@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 
 namespace MonoBomb
 {
@@ -20,6 +21,8 @@ namespace MonoBomb
 
     public interface IGameScreen
     {
+        Color BGColor { get; }
+
         IGameScreen Update(GameTime gameTime);
 
         void Draw(GameTime gameTime);
@@ -29,6 +32,8 @@ namespace MonoBomb
 
     public class ExitGameScreen : IGameScreen
     {
+        Color IGameScreen.BGColor => Color.White;
+
         public void Draw(GameTime gameTime)
         {
 
@@ -42,6 +47,21 @@ namespace MonoBomb
         public IGameScreen Update(GameTime gameTime)
         {
             return null;
+        }
+
+        void IGameScreen.Draw(GameTime gameTime)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IGameScreen.Init()
+        {
+            throw new NotImplementedException();
+        }
+
+        IGameScreen IGameScreen.Update(GameTime gameTime)
+        {
+            throw new NotImplementedException();
         }
     }
 }

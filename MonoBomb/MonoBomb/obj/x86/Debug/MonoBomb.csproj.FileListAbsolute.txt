@@ -25,4 +25,5 @@ D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\bin\Windows\x86\Debug\SharpDX.XInp
 D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\bin\Windows\x86\Debug\SharpDX.Direct3D9.xml
 D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\obj\x86\Debug\MonoBomb.exe
 D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\obj\x86\Debug\MonoBomb.pdb
-D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\obj\x86\Debug\MonoBomb.csprojResolveAssemblyReference.cache
+D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\bin\Windows\x86\Debug\Content\Skull_Bomb.xnb
+D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\bin\Windows\x86\Debug\Content\Unclicked_Tile.xnb

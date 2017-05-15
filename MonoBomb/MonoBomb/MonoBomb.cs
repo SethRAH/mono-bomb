@@ -37,7 +37,7 @@ namespace MonoBomb
             // TODO: Add your initialization logic here
             //IsMouseVisible = true;
 
-            screen = new SplashScreen(this, new ExitGameScreen());
+            screen = new SplashScreen(this, new SweeperScreen(this));
 
             base.Initialize();
         }
@@ -124,7 +124,7 @@ namespace MonoBomb
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.White);
+            GraphicsDevice.Clear(screen.BGColor);
 
             screen.Draw(gameTime);
 

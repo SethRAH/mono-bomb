@@ -18,11 +18,15 @@ namespace MonoBomb
         private Sprite logo1;
         private Sprite logo2;
         private TimeSpan firstTime;
+        private Color bgColor;
+
+        public Color BGColor { get { return bgColor; } }
 
         public SplashScreen(Game game, IGameScreen successor)
         {
             this.game = game;
             this.successor = successor;
+            this.bgColor = Color.White;
         }
 
         public void Draw(GameTime gameTime)
@@ -74,8 +78,11 @@ namespace MonoBomb
                 if ((gameTime.TotalGameTime - firstTime).TotalMilliseconds > 1000)
                     logo2.transparency = 1.0f;
 
-                if((gameTime.TotalGameTime - firstTime).TotalMilliseconds > 3000)
+                if ((gameTime.TotalGameTime - firstTime).TotalMilliseconds > 3000)
+                {
+                    successor.Init();
                     return successor;
+                }
             }
             else
             {

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <SourceFile>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/cursor.png</SourceFile>
-  <SourceTime>2017-04-12T18:20:32.1653388-04:00</SourceTime>
-  <DestFile>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/bin/Windows/cursor.xnb</DestFile>
-  <DestTime>2017-05-15T08:45:17.7074452-04:00</DestTime>
+  <SourceFile>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/Unclicked_Tile.png</SourceFile>
+  <SourceTime>2017-05-15T08:44:41.4281209-04:00</SourceTime>
+  <DestFile>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/bin/Windows/Unclicked_Tile.xnb</DestFile>
+  <DestTime>2017-05-15T08:45:18.1786617-04:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2017-03-01T10:05:36-05:00</ImporterTime>
   <Processor>TextureProcessor</Processor>
