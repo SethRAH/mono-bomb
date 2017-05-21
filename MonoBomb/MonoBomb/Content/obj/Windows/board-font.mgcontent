@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SourceFile>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/board-font.spritefont</SourceFile>
+  <SourceTime>2017-05-21T15:23:36.9035597-04:00</SourceTime>
+  <DestFile>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/bin/Windows/board-font.xnb</DestFile>
+  <DestTime>2017-05-21T15:23:44.3641316-04:00</DestTime>
+  <Importer>FontDescriptionImporter</Importer>
+  <ImporterTime>2017-03-01T10:05:36-05:00</ImporterTime>
+  <Processor>FontDescriptionProcessor</Processor>
+  <ProcessorTime>2017-03-01T10:05:36-05:00</ProcessorTime>
+  <Parameters>
+    <Key>PremultiplyAlpha</Key>
+    <Value>True</Value>
+  </Parameters>
+  <Parameters>
+    <Key>TextureFormat</Key>
+    <Value>Compressed</Value>
+  </Parameters>
+  <Dependencies />
+  <BuildAsset />
+  <BuildOutput />
+</PipelineBuildEvent>
