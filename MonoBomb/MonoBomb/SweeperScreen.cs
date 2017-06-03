@@ -15,7 +15,8 @@ namespace MonoBomb
         private Game game;
         private GameBoard gameboard;
         SpriteBatch spriteBatch;
-        private Texture2D bombTexture, unclickedTileTexture;
+        MouseInputHandler mouseHandler;
+        private Texture2D bombTexture, unclickedTileTexture, clickedTileTexture, cursor;
         private Color bgColor;
         private SpriteFont boardFont;
 
@@ -31,7 +32,8 @@ namespace MonoBomb
         {
             spriteBatch.Begin();
 
-            gameboard.Draw(spriteBatch, bombTexture, unclickedTileTexture, boardFont);
+            gameboard.Draw(spriteBatch, bombTexture, unclickedTileTexture, clickedTileTexture, boardFont);
+            spriteBatch.Draw(cursor, mouseHandler.CurrentPosition, Color.White);
 
             spriteBatch.End();
         }
@@ -39,17 +41,27 @@ namespace MonoBomb
         public void Init()
         {
             var gameBounds = new Rectangle(0, 0, game.Window.ClientBounds.Width, game.Window.ClientBounds.Height);
+            mouseHandler = new MouseInputHandler();
+            mouseHandler.Init();
             gameboard = new GameBoard(15,10,32,(gameBounds.Width / 2) - 240 , (gameBounds.Height / 2) - 160, 8);
             spriteBatch = new SpriteBatch(game.GraphicsDevice);
             bombTexture = game.Content.Load<Texture2D>(@"Skull_Bomb");
             unclickedTileTexture = game.Content.Load<Texture2D>(@"Unclicked_Tile");
+            clickedTileTexture = game.Content.Load<Texture2D>(@"Clicked_Tile");
             boardFont = game.Content.Load<SpriteFont>(@"board-font");
+            cursor = game.Content.Load<Texture2D>(@"cursor");
         }
 
         public IGameScreen Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 return new ExitGameScreen();
+
+            mouseHandler.Update(gameTime);
+            if (mouseHandler.LeftButtonHandler.IsInitialRelease)
+            {
+                gameboard.Click(mouseHandler.CurrentPosition);
+            }
 
             return null;
         }
@@ -88,22 +100,29 @@ namespace MonoBomb
             initBoard();
         }
 
-        public void Draw(SpriteBatch spriteBatch, Texture2D bombTexture, Texture2D UnclickedTileTexture, SpriteFont font)
+        public void Draw(SpriteBatch spriteBatch, Texture2D bombTexture, Texture2D UnclickedTileTexture, Texture2D ClickedTileTexture, SpriteFont font)
         {
             int size = height * width;
             for(int i = 0; i < size; i++)
             {
                 var coord = coordinates(i);
-                var location = new Vector2(left + (coord.Item1 * tileSize), top + (coord.Item2 * tileSize));
-                spriteBatch.Draw(UnclickedTileTexture, location, Color.White * 1.0f);
+                var location = new Vector2(left + (coord.X * tileSize), top + (coord.Y * tileSize));
+                spriteBatch.Draw(ClickedTileTexture, location, Color.White * 1.0f);
 
-                if (isBomb[i])
+                if (isUncovered[i])
                 {
-                    spriteBatch.Draw(bombTexture, location, Color.White * 1.0f);
+                    if (isBomb[i])
+                    {
+                        spriteBatch.Draw(bombTexture, location, Color.White * 1.0f);
+                    }
+                    else if (adjacency[i] > 0)
+                    {
+                        spriteBatch.DrawString(font, adjacency[i].ToString(), location + new Vector2(xPadding, yPadding), Color.White * 0.8f);
+                    }
                 }
-                else if(adjacency[i] > 0)
+                else
                 {
-                    spriteBatch.DrawString(font, adjacency[i].ToString(), location + new Vector2(xPadding, yPadding), Color.White * 0.8f);
+                    spriteBatch.Draw(UnclickedTileTexture, location, Color.White * 1.0f);
                 }
             }
         }
@@ -121,52 +140,194 @@ namespace MonoBomb
                 isBomb[i] = random.Next(bombRatio - 1) == 0;
             }
 
-            //After bombs are set, loop again for adjacency
+            //After bombs are set, loop again for adjacency (can probably make this quicker by incrementing all surrounding tiles when dropping a bomb)
             for(int i = 0; i < size; i++)
             {
                 int count = 0;
                 var coord = coordinates(i);
                 //NW
-                if (coord.Item1 - 1 > -1 && coord.Item2 - 1 > -1 && isBomb[index(coord.Item1 - 1, coord.Item2 - 1)]) count++;
+                if (coord.X - 1 > -1 && coord.Y - 1 > -1 && isBomb[index((int)coord.X - 1, (int)coord.Y - 1)]) count++;
 
                 //N
-                if (coord.Item1 > -1 && coord.Item2 - 1 > -1 && isBomb[index(coord.Item1, coord.Item2 - 1)]) count++;
+                if (coord.X > -1 && coord.Y - 1 > -1 && isBomb[index((int)coord.X, (int)coord.Y - 1)]) count++;
 
                 //NE
-                if (coord.Item1 + 1 < width - 1 && coord.Item2 - 1 > -1 && isBomb[index(coord.Item1 + 1, coord.Item2 - 1)]) count++;
+                if (coord.X + 1 < width && coord.Y - 1 > -1 && isBomb[index((int)coord.X + 1, (int)coord.Y - 1)]) count++;
 
                 //E
-                if (coord.Item1 + 1 < width - 1 && coord.Item2  > -1 && isBomb[index(coord.Item1 + 1, coord.Item2)]) count++;
+                if (coord.X + 1 < width && coord.Y  > -1 && isBomb[index((int)coord.X + 1, (int)coord.Y)]) count++;
 
                 //SE
-                if (coord.Item1 + 1 < width && coord.Item2 + 1 < height && isBomb[index(coord.Item1 + 1, coord.Item2 + 1)]) count++;
+                if (coord.X + 1 < width && coord.Y + 1 < height && isBomb[index((int)coord.X + 1, (int)coord.Y + 1)]) count++;
 
                 //S
-                if (coord.Item1 > -1 && coord.Item2 + 1 < height && isBomb[index(coord.Item1, coord.Item2 + 1)]) count++;
+                if (coord.X > -1 && coord.Y + 1 < height && isBomb[index((int)coord.X, (int)coord.Y + 1)]) count++;
 
                 //SW
-                if (coord.Item1 - 1 > -1 && coord.Item2 + 1 < height && isBomb[index(coord.Item1 -1 , coord.Item2 + 1)]) count++;
+                if (coord.X - 1 > -1 && coord.Y + 1 < height && isBomb[index((int)coord.X -1 , (int)coord.Y + 1)]) count++;
 
                 //W
-                if (coord.Item1 - 1 > -1 && coord.Item2 > -1 && isBomb[index(coord.Item1 - 1, coord.Item2)]) count++;
+                if (coord.X - 1 > -1 && coord.Y > -1 && isBomb[index((int)coord.X - 1, (int)coord.Y)]) count++;
 
                 adjacency[i] = count;
             }
         }
 
-        private Tuple<int, int> coordinates(int index)
+        public bool Click(Vector2 mousePos)
+        {
+            bool badClick = false;
+
+            //use mouse position and gameboard dimemsion data to get the coordinates
+            int coordX = (int)(mousePos.X - left) / tileSize;
+            int coordY = (int)(mousePos.Y - top) / tileSize;
+
+            var clickedIndex = index(coordX, coordY);
+
+            if(clickedIndex > -1 && clickedIndex < (height * width))
+            {
+                uncoverTiles(clickedIndex);
+                if (isBomb[clickedIndex])
+                    badClick = true;
+            }
+
+            return badClick;
+        }
+
+        private void uncoverTiles(int clickedIndex)
+        {
+            List<int> alreadyExpanded = new List<int>();
+            List<int> expandableIndexes = new List<int>();
+            isUncovered[clickedIndex] = true;
+            int gameSize = height * width;
+
+            if(!isBomb[clickedIndex] && adjacency[clickedIndex] == 0)
+            {
+                expandableIndexes.Add(clickedIndex);
+            }
+
+            while (expandableIndexes.Any())
+            {
+                //alreadyExpanded.AddRange(expandableIndexes);
+                var nextExpandableIndexes = new List<int>();
+
+                foreach(int i in expandableIndexes)
+                {
+                    
+                    //Uncover its adjacent tiles
+                    int NW = index(coordinates(i) + new Vector2(-1, -1));
+                    if(NW > -1 && NW < gameSize)
+                    {
+                        isUncovered[NW] = true;
+                        if(!isBomb[NW] && adjacency[NW] == 0 && !alreadyExpanded.Contains(NW))
+                        {
+                            alreadyExpanded.Add(NW);
+                            nextExpandableIndexes.Add(NW);
+                        }
+                    }
+                    
+                    int N = index(coordinates(i) + new Vector2(0, -1));
+                    if (N > -1 && N < gameSize)
+                    {
+                        isUncovered[N] = true;
+                        if (!isBomb[N] && adjacency[N] == 0 && !alreadyExpanded.Contains(N))
+                        {
+                            alreadyExpanded.Add(N);
+                            nextExpandableIndexes.Add(N);
+                        }
+                    }
+
+                    int NE = index(coordinates(i) + new Vector2(1, -1));
+                    if (NE > -1 && NE < gameSize)
+                    {
+                        isUncovered[NE] = true;
+                        if (!isBomb[NE] && adjacency[NE] == 0 && !alreadyExpanded.Contains(NE))
+                        {
+                            alreadyExpanded.Add(NE);
+                            nextExpandableIndexes.Add(NE);
+                        }
+                    }
+
+                    int E = index(coordinates(i) + new Vector2(1, 0));
+                    if (E > -1 && E < gameSize)
+                    {
+                        isUncovered[E] = true;
+                        if (!isBomb[E] && adjacency[E] == 0 && !alreadyExpanded.Contains(E))
+                        {
+                            alreadyExpanded.Add(E);
+                            nextExpandableIndexes.Add(E);
+                        }
+                    }
+
+                    int SE = index(coordinates(i) + new Vector2(1, 1));
+                    if (SE > -1 && SE < gameSize)
+                    {
+                        isUncovered[SE] = true;
+                        if (!isBomb[SE] && adjacency[SE] == 0 && !alreadyExpanded.Contains(SE))
+                        {
+                            alreadyExpanded.Add(SE);
+                            nextExpandableIndexes.Add(SE);
+                        }
+                    }
+
+                    int S = index(coordinates(i) + new Vector2(0, 1));
+                    if (S > -1 && S < gameSize)
+                    {
+                        isUncovered[S] = true;
+                        if (!isBomb[S] && adjacency[S] == 0 && !alreadyExpanded.Contains(S))
+                        {
+                            alreadyExpanded.Add(S);
+                            nextExpandableIndexes.Add(S);
+                        }
+                    }
+
+                    int SW = index(coordinates(i) + new Vector2(-1, 1));
+                    if (SW > -1 && SW < gameSize)
+                    {
+                        isUncovered[SW] = true;
+                        if (!isBomb[SW] && adjacency[SW] == 0 && !alreadyExpanded.Contains(SW))
+                        {
+                            alreadyExpanded.Add(SW);
+                            nextExpandableIndexes.Add(SW);
+                        }
+                    }
+
+                    int W = index(coordinates(i) + new Vector2(-1, 0));
+                    if (W > -1 && W < gameSize)
+                    {
+                        isUncovered[W] = true;
+                        if (!isBomb[W] && adjacency[W] == 0 && !alreadyExpanded.Contains(W))
+                        {
+                            alreadyExpanded.Add(W);
+                            nextExpandableIndexes.Add(W);
+                        }
+                    }
+                }
+                
+                expandableIndexes = nextExpandableIndexes;
+            }
+        }
+
+        private Vector2 coordinates(int index)
         {
             int x = 0, y = 0;
 
             y = index / this.width;
             x = index % width;
 
-            return new Tuple<int, int>(x, y);
+            return new Vector2(x, y);
         }
 
         private int index(int x, int y)
         {
             return y * width + x;
+        }
+
+        private int index(Vector2 vector)
+        {
+            if (vector.X < 0 || vector.X > width - 1)
+                return -1; // Can't safely wrap left or right
+
+            return (int)Math.Floor(vector.Y * width + vector.X);
         }
     }
 }

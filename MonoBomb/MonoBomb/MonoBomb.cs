@@ -56,7 +56,7 @@ namespace MonoBomb
             //// Create a new SpriteBatch, which can be used to draw textures.
             //spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            //// Mouse.SetCursor(MouseCursor.FromTexture2D(Content.Load<Texture2D>(@"cursor"), 0, 0));
+            //Mouse.SetCursor(MouseCursor.FromTexture2D(Content.Load<Texture2D>(@"cursor"), 0, 0));
             //cursor = Content.Load<Texture2D>(@"cursor");
 
             //zing = Content.Load<SoundEffect>(@"Audio\SoundFX\NFF-zing");

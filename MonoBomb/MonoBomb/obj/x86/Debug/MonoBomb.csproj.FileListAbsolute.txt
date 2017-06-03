@@ -28,3 +28,4 @@ D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\obj\x86\Debug\MonoBomb.pdb
 D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\bin\Windows\x86\Debug\Content\Skull_Bomb.xnb
 D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\bin\Windows\x86\Debug\Content\Unclicked_Tile.xnb
 D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\bin\Windows\x86\Debug\Content\board-font.xnb
+D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\bin\Windows\x86\Debug\Content\Clicked_Tile.xnb
