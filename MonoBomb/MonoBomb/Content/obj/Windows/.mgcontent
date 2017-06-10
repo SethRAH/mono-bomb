@@ -13,5 +13,8 @@
     <File>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/Unclicked_Tile.png</File>
     <File>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/board-font.spritefont</File>
     <File>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/Clicked_Tile.png</File>
+    <File>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/Unclicked_Tile_Long.png</File>
+    <File>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/Clicked_Tile_Long.png</File>
+    <File>D:/Source/SethRAH/mono-bomb/MonoBomb/MonoBomb/Content/Flag.png</File>
   </SourceFiles>
 </SourceFileCollection>

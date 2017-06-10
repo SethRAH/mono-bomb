@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace MonoBomb
@@ -51,11 +52,13 @@ namespace MonoBomb
             CheckBounds();
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public virtual void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(this.texture, this.Location, Color.White * transparency);
         }
 
         protected virtual void CheckBounds() { }
     }
+
+    
 }

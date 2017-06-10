@@ -14,9 +14,10 @@ namespace MonoBomb
     {
         private Game game;
         private GameBoard gameboard;
+        private GamePanel gamepanel;
         SpriteBatch spriteBatch;
         MouseInputHandler mouseHandler;
-        private Texture2D bombTexture, unclickedTileTexture, clickedTileTexture, cursor;
+        private Texture2D bombTexture, unclickedTileTexture, unclickedTileTextureLong, clickedTileTexture, clickedTileTextureLong, cursor, flag;
         private Color bgColor;
         private SpriteFont boardFont;
 
@@ -32,7 +33,8 @@ namespace MonoBomb
         {
             spriteBatch.Begin();
 
-            gameboard.Draw(spriteBatch, bombTexture, unclickedTileTexture, clickedTileTexture, boardFont);
+            gamepanel.Draw(spriteBatch, unclickedTileTexture, unclickedTileTextureLong, clickedTileTexture, boardFont);
+            gameboard.Draw(spriteBatch, bombTexture, unclickedTileTexture, clickedTileTexture, flag, boardFont);
             spriteBatch.Draw(cursor, mouseHandler.CurrentPosition, Color.White);
 
             spriteBatch.End();
@@ -40,16 +42,25 @@ namespace MonoBomb
 
         public void Init()
         {
+            int gamepanelWidth = 148;
+            int gameboardWidth = 480;
+            int spacerWidth = 20;
+
             var gameBounds = new Rectangle(0, 0, game.Window.ClientBounds.Width, game.Window.ClientBounds.Height);
             mouseHandler = new MouseInputHandler();
             mouseHandler.Init();
-            gameboard = new GameBoard(15,10,32,(gameBounds.Width / 2) - 240 , (gameBounds.Height / 2) - 160, 8);
             spriteBatch = new SpriteBatch(game.GraphicsDevice);
             bombTexture = game.Content.Load<Texture2D>(@"Skull_Bomb");
             unclickedTileTexture = game.Content.Load<Texture2D>(@"Unclicked_Tile");
+            unclickedTileTextureLong = game.Content.Load<Texture2D>(@"Unclicked_Tile_Long");
             clickedTileTexture = game.Content.Load<Texture2D>(@"Clicked_Tile");
+            clickedTileTextureLong = game.Content.Load<Texture2D>(@"Clicked_Tile_Long");
             boardFont = game.Content.Load<SpriteFont>(@"board-font");
             cursor = game.Content.Load<Texture2D>(@"cursor");
+            flag = game.Content.Load<Texture2D>(@"Flag");
+            gameboard = new GameBoard(15,10,32, (gameBounds.Width / 2) - ((gamepanelWidth + gameboardWidth + spacerWidth) / 2) + gamepanelWidth + spacerWidth, (gameBounds.Height / 2) - 160, 8);
+            gamepanel = new GamePanel((gameBounds.Width / 2) - (gamepanelWidth + gameboardWidth + spacerWidth)/2,25,gamepanelWidth,148);
+            gamepanel.Init(unclickedTileTextureLong, clickedTileTextureLong, unclickedTileTexture, clickedTileTexture, boardFont, this);
         }
 
         public IGameScreen Update(GameTime gameTime)
@@ -60,20 +71,143 @@ namespace MonoBomb
             mouseHandler.Update(gameTime);
             if (mouseHandler.LeftButtonHandler.IsInitialRelease)
             {
-                gameboard.Click(mouseHandler.CurrentPosition);
+                bool gameOver = gameboard.Click(mouseHandler.CurrentPosition);
+                gamepanel.Click(mouseHandler.CurrentPosition);
+            }
+            if (mouseHandler.RightButtonHandler.IsInitialRelease)
+            {
+                gameboard.Flag(mouseHandler.CurrentPosition);
             }
 
+            gamepanel.Update(mouseHandler.CurrentPosition, mouseHandler.LeftButtonHandler.IsInitialClick, mouseHandler.LeftButtonHandler.IsInitialRelease, mouseHandler.LeftButtonHandler.IsHeld);
+
             return null;
+        }
+
+        internal void AcceptPanelCommand(PanelCommand panelCommand)
+        {
+            switch (panelCommand.Action)
+            {
+                case "Reset":
+                    gameboard = new GameBoard(gameboard.width, gameboard.height, gameboard.tileSize, gameboard.left, gameboard.top, gameboard.bombRatio);
+                    break;
+            }
+        }
+    }
+    
+    public class PanelCommand
+    {
+        public String Action { get; set; }
+        public int Height { get; set; }
+        public int Width { get; set; }
+        public int BombRatio { get; set; }
+    }
+
+    public class GamePanel
+    {
+        //state variables
+
+        private int height, width, bombRatio, pxTop, pxLeft, pxHeight, pxWidth;
+
+        private List<Vector2> sizeOptions = new List<Vector2>() { new Vector2(10, 10), new Vector2(15,10), new Vector2(10,15), new Vector2(15,15) };
+        private List<int> ratioOptions = new List<int> { 5, 8, 10, 15 };
+        private List<IButton> buttons = new List<IButton>();
+
+        private Texture2D _clickedButtonTextureShort, _clickedButtonTextureLong, _unclickedButtonTextureShort, _unclickedButtonTextureLong;
+
+        public GamePanel()
+        {
+            pxTop = 25;
+            pxLeft = 25;
+            pxHeight = 148;
+            pxWidth = 148;
+            bombRatio = 8;
+            height = 10;
+            width = 15;
+        }
+
+        public GamePanel(int left, int top, int width, int height)
+        {
+            pxTop = top;
+            pxLeft = left;
+            pxHeight = height;
+            pxWidth = width;
+            bombRatio = 8;
+            this.height = 10;
+            this.width = 15;
+        }
+
+        public void Init(Texture2D unclickedButtonTextureLong, Texture2D clickedButtonTextureLong, Texture2D unclickedButtonTextureShort, Texture2D clickedButtonTextureShort, SpriteFont font, SweeperScreen screen)
+        {
+            _unclickedButtonTextureLong = unclickedButtonTextureLong;
+            _clickedButtonTextureLong = clickedButtonTextureLong;
+            _unclickedButtonTextureShort = unclickedButtonTextureShort;
+            _clickedButtonTextureShort = clickedButtonTextureShort;
+
+            buttons = new List<IButton>() { new PanelButton(_unclickedButtonTextureLong, font, new Vector2((pxWidth / 2) - (_unclickedButtonTextureLong.Width / 2) + pxLeft, pxTop + 47), "Reset", new ResetCommand(ref screen)) };
+        }
+
+        public PanelCommand Update(Vector2 mousePos, bool isInitialClick, bool isInitialRelease, bool isDown)
+        {
+            PanelCommand result = new PanelCommand() { Height = height, Width = width, BombRatio = bombRatio };
+
+            foreach(var button in buttons)
+            {
+                if(isDown && button.Intersect(mousePos))
+                {
+                    button.SetTexture(_clickedButtonTextureLong);
+                }
+                else
+                {
+                    button.SetTexture(_unclickedButtonTextureLong);
+                }
+            }
+
+            return result;
+        }
+
+        public void Click(Vector2 mousePos)
+        {
+            foreach(var button in buttons)
+            {
+                if (button.Intersect(mousePos))
+                {
+                    button.Click();
+                }
+            }
+        }
+
+        public void Draw(SpriteBatch spriteBatch, Texture2D UnclickedTileTexture, Texture2D UnclickedTileTextureLong, Texture2D ClickedTileTexture, SpriteFont font)
+        {
+            var vertOffset = pxTop + 10;
+            //First row is the panel label
+            spriteBatch.DrawString(font, "Panel", new Vector2(pxLeft + 10, vertOffset), Color.White * 0.8f);
+            
+            foreach(var button in buttons)
+            {
+                button.Draw(spriteBatch);
+            }
         }
     }
 
     public class GameBoard
     {
         private readonly int xPadding = 8, yPadding = 8;
-        int height, width, bombRatio, tileSize, top, left;
+        
+        public int height { get; private set; }
+        public int width { get; private set; }
+        public int bombRatio { get; private set; }
+        public int tileSize { get; private set; }
+        public int top { get; private set; }
+        public int left { get; private set; }
+
+        private bool gameOver;
+
         bool[] isUncovered;
         bool[] isBomb;
         int[] adjacency;
+
+        bool[] isFlagged;
 
         public int pixHeight { get { return height * tileSize; } }
         public int pixWidth { get { return width * tileSize; } }
@@ -100,7 +234,7 @@ namespace MonoBomb
             initBoard();
         }
 
-        public void Draw(SpriteBatch spriteBatch, Texture2D bombTexture, Texture2D UnclickedTileTexture, Texture2D ClickedTileTexture, SpriteFont font)
+        public void Draw(SpriteBatch spriteBatch, Texture2D bombTexture, Texture2D UnclickedTileTexture, Texture2D ClickedTileTexture, Texture2D Flag, SpriteFont font)
         {
             int size = height * width;
             for(int i = 0; i < size; i++)
@@ -123,6 +257,10 @@ namespace MonoBomb
                 else
                 {
                     spriteBatch.Draw(UnclickedTileTexture, location, Color.White * 1.0f);
+                    if (isFlagged[i])
+                    {
+                        spriteBatch.Draw(Flag, location, Color.White * 1.0f);
+                    }
                 }
             }
         }
@@ -132,11 +270,13 @@ namespace MonoBomb
             var random = new Random();
             int size = height * width;
             isUncovered = new bool[size];
+            isFlagged = new bool[size];
             isBomb = new bool[size];
             adjacency = new int[size];
             for(int i = 0; i < size; i++)
             {
                 isUncovered[i] = false;
+                isFlagged[i] = false;
                 isBomb[i] = random.Next(bombRatio - 1) == 0;
             }
 
@@ -177,17 +317,26 @@ namespace MonoBomb
         {
             bool badClick = false;
 
-            //use mouse position and gameboard dimemsion data to get the coordinates
-            int coordX = (int)(mousePos.X - left) / tileSize;
-            int coordY = (int)(mousePos.Y - top) / tileSize;
-
-            var clickedIndex = index(coordX, coordY);
-
-            if(clickedIndex > -1 && clickedIndex < (height * width))
+            if (!gameOver)
             {
-                uncoverTiles(clickedIndex);
-                if (isBomb[clickedIndex])
-                    badClick = true;
+                //use mouse position and gameboard dimemsion data to get the coordinates
+                int coordX = (int)(mousePos.X - left) / tileSize;
+                int coordY = (int)(mousePos.Y - top) / tileSize;
+
+                var clickedIndex = index(coordX, coordY);
+
+                if (clickedIndex > -1 && clickedIndex < (height * width))
+                {
+                    uncoverTiles(clickedIndex);
+                    if (isBomb[clickedIndex])
+                        badClick = true;
+                }
+
+                if (badClick)
+                {
+                    gameOver = true;
+                    revealBombs();
+                }
             }
 
             return badClick;
@@ -307,6 +456,16 @@ namespace MonoBomb
             }
         }
 
+        private void revealBombs()
+        {
+            int size = height * width;
+            for(int i = 0; i< size; i++)
+            {
+                if (isBomb[i])
+                    isUncovered[i] = true;
+            }
+        }
+
         private Vector2 coordinates(int index)
         {
             int x = 0, y = 0;
@@ -319,6 +478,8 @@ namespace MonoBomb
 
         private int index(int x, int y)
         {
+            if (x < 0 || x > width - 1)
+                return -1; // Can't safely wrap left or right
             return y * width + x;
         }
 
@@ -328,6 +489,119 @@ namespace MonoBomb
                 return -1; // Can't safely wrap left or right
 
             return (int)Math.Floor(vector.Y * width + vector.X);
+        }
+
+        public void Flag(Vector2 mousePos)
+        {
+            if (!gameOver)
+            {
+                //use mouse position and gameboard dimemsion data to get the coordinates
+                int coordX = (int)(mousePos.X - left) / tileSize;
+                int coordY = (int)(mousePos.Y - top) / tileSize;
+
+                var clickedIndex = index(coordX, coordY);
+
+                if (clickedIndex > -1 && clickedIndex < (height * width))
+                {
+                    isFlagged[clickedIndex] = !isFlagged[clickedIndex];
+                }
+            }
+        }
+    }
+    public interface IButton
+    {
+        void SetText(string text);
+        void SetTexture(Texture2D texture);
+        void SetFont(SpriteFont font);
+        void SetCommand(IButtonCommand command);
+        bool Intersect(Vector2 coords);
+        void Draw(SpriteBatch spriteBatch);
+        void Click();
+    }
+
+    public interface IButtonCommand
+    {
+        void Execute();
+    }
+
+    public class NullCommand : IButtonCommand
+    {
+        public void Execute() { }
+    }
+
+    public class ResetCommand : IButtonCommand
+    {
+        private SweeperScreen _sweeperScreen;
+
+        public ResetCommand(ref SweeperScreen sweeperScreen)
+        {
+            _sweeperScreen = sweeperScreen;
+        }
+
+        public void Execute()
+        {
+            _sweeperScreen.AcceptPanelCommand(new PanelCommand() { Action = "Reset" });
+        }
+    }
+
+    public class PanelButton : IButton
+    {
+        protected SpriteFont _font;
+        protected string _text;
+        protected Texture2D _texture;
+        protected Vector2 _location;
+        protected IButtonCommand _command;
+
+
+        public PanelButton(Texture2D texture, SpriteFont font, Vector2 location, string text, IButtonCommand command)
+        {
+            _font = font;
+            _text = text;
+            _texture = texture;
+            _location = location;
+            _command = command;
+        }
+
+        public void Click()
+        {
+            _command.Execute();
+        }
+
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            spriteBatch.Draw(_texture, _location, Color.White * 1.0f);
+            var fontDim = _font.MeasureString(_text);
+            var textOffset = new Vector2((_texture.Width / 2) - (fontDim.X / 2), (_texture.Height / 2) - (fontDim.Y / 2));
+            spriteBatch.DrawString(_font, _text, _location + textOffset, Color.White * 0.8f);
+        }
+
+        public bool Intersect(Vector2 coords)
+        {
+            if (coords.X >= _location.X && coords.X <= _location.X + _texture.Width
+                && coords.Y >= _location.Y && coords.Y <= _location.Y + _texture.Height)
+                return true;
+            return false;
+        }
+
+        public void SetCommand(IButtonCommand command)
+        {
+            _command = command;
+        }
+
+        public void SetFont(SpriteFont font)
+        {
+            _font = font;
+        }
+
+        public void SetText(string text)
+        {
+            _text = text;
+        }
+
+        public void SetTexture(Texture2D texture)
+        {
+            _texture = texture;
         }
     }
 }

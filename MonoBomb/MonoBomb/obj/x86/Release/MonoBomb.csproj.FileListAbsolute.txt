@@ -29,3 +29,4 @@ D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\bin\Windows\x86\Release\SharpDX.XI
 D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\bin\Windows\x86\Release\SharpDX.Direct3D9.xml
 D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\obj\x86\Release\MonoBomb.exe
 D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\obj\x86\Release\MonoBomb.pdb
+D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\obj\x86\Release\MonoBomb.csprojResolveAssemblyReference.cache
