@@ -33,3 +33,4 @@ D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\obj\x86\Debug\MonoBomb.exe
 D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\obj\x86\Debug\MonoBomb.pdb
 D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\obj\x86\Debug\MonoBomb.csprojResolveAssemblyReference.cache
 D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\bin\Windows\x86\Debug\Content\Flag.xnb
+D:\Source\SethRAH\mono-bomb\MonoBomb\MonoBomb\bin\Windows\x86\Debug\Content\Question.xnb

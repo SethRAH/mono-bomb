@@ -23,6 +23,8 @@ namespace MonoBomb
         public MonoBomb()
         {
             graphics = new GraphicsDeviceManager(this);
+            graphics.PreferredBackBufferHeight = 500;
+            graphics.ApplyChanges();
             Content.RootDirectory = "Content";
         }
 
